@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-navigation',
@@ -6,7 +7,7 @@ import { Component } from '@angular/core';
   styleUrls: ['./navigation.component.css']
 })
 export class NavigationComponent {
-  constructor() { }
+  constructor(private authService: AuthService) { }
 
   onSaveData() {
     // this.dataStorageService.storeRecipes()
@@ -22,11 +23,10 @@ export class NavigationComponent {
   }
 
   onLogout() {
-    // this.authService.logout();
+     this.authService.logout();
   }
 
   isAuthenticated(): boolean {
-    return false;
-    // return this.authService.isAuthenticated();
+    return this.authService.isAuthenticated();
   }
 }

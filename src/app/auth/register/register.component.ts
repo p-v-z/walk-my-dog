@@ -9,7 +9,7 @@ import { AuthService } from '../auth.service';
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent implements OnInit {
-
+  isValid: boolean = true;
   constructor(private authService: AuthService) { }
 
   ngOnInit() {
