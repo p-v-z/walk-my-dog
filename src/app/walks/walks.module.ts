@@ -6,10 +6,12 @@ import { DataStorageService } from '../shared/data-storage.service';
 import { WalkService } from '../walks/walk.service';
 
 import { WalksComponent } from './walks.component';
+import { WalkComponent } from './walk/walk.component';
 
 @NgModule({
   declarations: [
-    WalksComponent
+    WalksComponent,
+    WalkComponent
   ],
   imports: [
     RoutingModule
