@@ -1,32 +1,38 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import * as firebase from 'firebase';
 import { Http } from '@angular/http';
+
+import * as firebase from 'firebase';
+import { User } from '../shared/user.model';
 
 @Injectable()
 export class AuthService {
-  token: string;
+  token: string = null;
+
+  user: User;
+  storeData = false;
 
   constructor(private router: Router, private http: Http) {}
 
   signupUser(email: string, password: string, firstname: string, surname: string) {
+    this.storeData = true;
+    this.user = new User(email, firstname, surname);
+
     firebase
       .auth()
       .createUserWithEmailAndPassword(email, password)
       .then((result) => {
-        //successfuly created user
-        const userId = result.user.uid;
-        this.storeUserData(firstname, surname, userId);
+        this.user.id = result.user.uid;
+        this.signinUser(email, password);
       })
       .catch(error => console.log(error));
-
-
   }
 
   signinUser(email: string, password: string) {
     firebase
       .auth()
       .signInWithEmailAndPassword(email, password)
+      .then(() => this.getToken())
       .catch(error => console.log(error));
   }
 
@@ -36,21 +42,27 @@ export class AuthService {
   }
 
   getToken() {
-    firebase.auth().currentUser.getIdToken().then((token: string) => (this.token = token));
+    firebase.auth().currentUser.getIdToken().then((token: string) => {
+      this.token = token;
+
+      if (this.storeData) {
+        this.storeUserData();
+      }
+    });
     return this.token;
+  }
+
+  storeUserData() {
+    console.log("Store data");
+
+    return this.http.put('https://walkmydog-bd9ce.firebaseio.com/Users/user-' + this.user.id + '.json?auth=' + this.token, this.user)
+        .subscribe((result) => {
+          console.log("store result:");
+          console.log(result);
+        });
   }
 
   isAuthenticated() {
     return this.token != null;
-  }
-
-  storeUserData(name, surname, userId) {
-     const token = this.getToken();
-     const body =  {
-       'name' : 'name',
-       'surname' : 'surname',
-
-     }
-      return this.http.put('https://walkmydog-bd9ce.firebaseio.com/user/jack/name.json?auth=' + token, body);
   }
 }

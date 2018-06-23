@@ -1,9 +1,12 @@
 import { Dog } from './dog.model';
 
 export class User {
+  public id: string;
+  public dogs: Dog[];
+
   constructor(
-    public id: string,
+    public email: string,
     public name: string,
-    public dogs: Dog[],
+    public surname: string,
   ) {}
 }

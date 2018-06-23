@@ -22,8 +22,8 @@
 
     <ul class="nav navbar-nav navbar-right">
       <ng-template [ngIf]="!isAuthenticated()">
-        <a class="btn btn-primary mx-3"routerLink="/register">Register</a>
-        <a class="btn btn-primary"routerLink="/login">Login</a>
+        <a class="btn btn-primary m-3"routerLink="/register">Register</a>
+        <a class="btn btn-primary m-3"routerLink="/login">Login</a>
       </ng-template>
 
       <div class="dropdown" *ngIf="isAuthenticated()">
