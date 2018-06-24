@@ -4,23 +4,25 @@ import { Http } from '@angular/http';
 
 import * as firebase from 'firebase';
 import { User } from '../shared/user.model';
+import { AlertService } from '../shared/alert.service';
 
 @Injectable()
 export class AuthService {
   token: string = null;
-
-  user: User;
   storeData = false;
+  user: User;
 
-  constructor(private router: Router, private http: Http) {}
+  constructor(
+    private router: Router,
+    private http: Http,
+    private alertService: AlertService,
+  ) {}
 
   signupUser(email: string, password: string, firstname: string, surname: string) {
     this.storeData = true;
     this.user = new User(email, firstname, surname);
 
-    firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password)
+    firebase.auth().createUserWithEmailAndPassword(email, password)
       .then((result) => {
         this.user.id = result.user.uid;
         this.signinUser(email, password);
@@ -29,21 +31,20 @@ export class AuthService {
   }
 
   signinUser(email: string, password: string) {
-    firebase
-      .auth()
-      .signInWithEmailAndPassword(email, password)
+    firebase.auth().signInWithEmailAndPassword(email, password)
       .then(() => this.getToken())
-      .catch(error => console.log(error));
+      .catch((error) => {
+        this.alertService.error('Login Unsuccessful');
+        console.log(error);
+      });
   }
 
-  logout() {
-    firebase.auth().signOut();
-    this.token = null;
-  }
-
-  getToken() {
-    firebase.auth().currentUser.getIdToken().then((token: string) => {
+  getToken(): string {
+    firebase.auth().currentUser.getIdToken()
+    .then((token: string) => {
       this.token = token;
+      this.router.navigateByUrl('/walks');
+      this.alertService.success("Login successful", true);
 
       if (this.storeData) {
         this.storeUserData();
@@ -53,16 +54,23 @@ export class AuthService {
   }
 
   storeUserData() {
-    console.log("Store data");
+    this.storeData = false;
 
     return this.http.put('https://walkmydog-bd9ce.firebaseio.com/Users/user-' + this.user.id + '.json?auth=' + this.token, this.user)
         .subscribe((result) => {
-          console.log("store result:");
+          console.log("Store result:");
           console.log(result);
         });
   }
 
-  isAuthenticated() {
+  isAuthenticated(): boolean {
     return this.token != null;
   }
+
+  logout() {
+    firebase.auth().signOut();
+    this.token = null;
+  }
+
+
 }
